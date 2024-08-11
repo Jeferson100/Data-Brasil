@@ -235,37 +235,35 @@ codigos_fred = {
 
 ### Method `datas_brazil`
 
-- 1. **Define the variables:** 
+For collecting data from different sources, you can use the `datas_brazil` method:
 
 ```python
+## Import the `EconomicData` class
+from brazilian_data import EconomicData
+
+## Define parameters that will be used in the `datas_brazil` method
 DATA_INICIO = "2000-01-01"
+
 data_bcb = True
 data_ibge = True
 data_ibge_link = True
 data_ipeadata = True
 data_fred = False
-```
 
-- 2. **Create the object.**
-
-```python
+## Initialize the `EconomicData` class
 economic_brazil = EconomicData(codes_banco_central=variaveis_banco_central, 
                                  codes_ibge=variaveis_ibge, 
                                  codes_ipeadata=codigos_ipeadata, 
                                  codes_ibge_link=indicadores_ibge_link,
                                  start_date=DATA_INICIO)
-```	
-3. **Collect the data.**
 
-```python	
+## Call the `datas_brazil` method
 dados = economic_brazil.datas_brazil(datas_bcb= data_bcb,
                                      datas_ibge_codigos=data_ibge, 
                                      datas_ibge_link=data_ibge_link, 
                                      datas_ipeadata=data_ipeadata,
                                      missing_data=True)
 ```
-Returns a dataframe with the data collected.
-
 ```python
 dados.head()
 ```
