@@ -223,6 +223,7 @@ def tratando_dados_bcb(
             inflacao_bcb.to_json(diretorio)
     return inflacao_bcb
 
+
 def tratando_dados_expectativas(salvar=False, formato="csv", diretorio=None):
     ipca_expec = dados_expectativas_focus()
     dados_ipca = ipca_expec.copy()

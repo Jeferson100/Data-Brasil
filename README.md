@@ -1,6 +1,6 @@
-<img src="imagens/slogan.jpg" alt="imagens" width="300"/>
+<img src="imagens/logo_brazilian.webp" alt="imagens" width="1000" height="700" />
 
-[![Test Actions](https://github.com/Jeferson100/Data-Brasil/actions/workflows/teste.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml)
+[![Teste Actions](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml)
 [![Collect Data](https://github.com/Jeferson100/Data-Brasil/actions/workflows/dados.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/datas.yml)
 
 # Brazilian Data
@@ -426,18 +426,25 @@ dados.head()
 The `missing_data` parameter indicates whether missing values will be replaced using the `ffill` and `bfill` methods. By default, `missing_data` will be True, and missing values will be replaced. If you prefer to keep the missing data, set the `missing_data` parameter to `False`.
 
 ```python
+
+## Import the `EconomicData` class
+from brazilian_data import EconomicData
+
+## Define parameters that will be used in the `datas_brazil` method
 data_bcb = True
 data_ibge = True
 data_ibge_link = True
 data_ipeadata = True
 data_fred = False
 
+## Initialize the `EconomicData` class
 economic_brazil = EconomicData(codes_banco_central=variaveis_banco_central, 
                                  codes_ibge=variaveis_ibge, 
                                  codes_ipeadata=codigos_ipeadata, 
                                  codes_ibge_link=indicadores_ibge_link,
                                  start_date=DATA_INICIO)
 
+## Call the `datas_brazil` method
 dados = economic_brazil.datas_brazil(datas_bcb= data_bcb,
                                      datas_ibge_codigos=data_ibge, 
                                      datas_ibge_link=data_ibge_link, 
@@ -586,6 +593,489 @@ dados.head()
 </table>
 </div>
 
+With the parameter `save=True`, you can download data. Define the `directory` parameter to save the file. If you don't define the `directory` parameter, an error will be returned. You can save in four formats: `csv`, `json`, `pickle`, and `excel`.
+
+```python
+## Import the `EconomicData` class
+from brazilian_data import EconomicData
+
+## Define parameters that will be used in the `datas_brazil` method
+data_bcb = True
+data_ibge = True
+data_ibge_link = True
+data_ipeadata = True
+data_fred = False
+
+## Initialize the `EconomicData` class
+economic_brazil = EconomicData(codes_banco_central=variaveis_banco_central, 
+                                 codes_ibge=variaveis_ibge, 
+                                 codes_ipeadata=codigos_ipeadata, 
+                                 codes_ibge_link=indicadores_ibge_link,
+                                 start_date=DATA_INICIO)
+
+## Call the `datas_brazil` method
+dados = economic_brazil.datas_brazil(datas_bcb= data_bcb,
+                                     datas_ibge_codigos=data_ibge, 
+                                     datas_ibge_link=data_ibge_link, 
+                                     datas_ipeadata=data_ipeadata,
+                                     save=True,
+                                     directory="../dados/economicos_brazil",
+                                     data_format="csv")
+```
+This parameter will not return a dataframe, only the saved file. This parameter can be used for other methods in the class.
+
+### Method `datas_banco_central`
+
+If you want to download the data from the Banco Central, you can use the method `datas_banco_central`.
+
+```python
+## Imported library
+from brazilian_data import EconomicData
+
+## define the start date
+DATA_INICIO = "2000-01-01"
+
+## define the dictionary of codes
+variaveis_banco_central= {
+    "selic": 4189,
+    "cambio": 3698,
+    "pib_mensal": 4380,
+    "igp_m": 189,
+    "igp_di": 190,
+    "m1": 27788,
+}
+
+## define a new object
+economic_brazil = EconomicData(codes_banco_central=variaveis_banco_central, 
+                                start_date=DATA_INICIO)
+
+## download the data
+dados = economic_brazil.datas_banco_central()
+```	
+```python
+dados.head()
+```
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>selic</th>
+      <th>pib_mensal</th>
+      <th>igp_m</th>
+      <th>igp_di</th>
+      <th>m1</th>
+    </tr>
+    <tr>
+      <th>Date</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2000-01-01</th>
+      <td>18.94</td>
+      <td>92576.6</td>
+      <td>1.24</td>
+      <td>1.02</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2000-02-01</th>
+      <td>18.87</td>
+      <td>91770.4</td>
+      <td>0.35</td>
+      <td>0.19</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2000-03-01</th>
+      <td>18.85</td>
+      <td>92579.9</td>
+      <td>0.15</td>
+      <td>0.18</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2000-04-01</th>
+      <td>18.62</td>
+      <td>91376.2</td>
+      <td>0.23</td>
+      <td>0.13</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2000-05-01</th>
+      <td>18.51</td>
+      <td>98727.0</td>
+      <td>0.31</td>
+      <td>0.67</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+### Method `datas_ibge`
+
+If you want to download the data from the IBGE, you can use the method `datas_ibge`.
+
+```python
+## Imported library
+from brazilian_data import EconomicData
+
+## define the start date
+DATA_INICIO = "2010-01-01"
+
+## define the dictionary of codes
+variaveis_ibge = {
+    "ipca": {
+        "codigo": 1737,
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "63",
+    },
+    "custo_m2": {
+        "codigo": 2296,
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "1198",
+    },
+    "pesquisa_industrial_mensal": {
+        "codigo": 8159,
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "11599",
+    },
+    "pmc_volume": {
+        "codigo": 8186,
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "11709",
+    },
+}
+
+## define a new object
+economic_brazil = EconomicData(codes_ibge=variaveis_ibge, start_date=DATA_INICIO)
+
+## download the data
+dados = economic_brazil.datas_ibge()
+```
+
+```python
+dados.head()
+```
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ipca</th>
+      <th>custo_m2</th>
+      <th>pesquisa_industrial_mensal</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2010-01-01</th>
+      <td>0.75</td>
+      <td>NaN</td>
+      <td>91.20876</td>
+    </tr>
+    <tr>
+      <th>2010-02-01</th>
+      <td>0.78</td>
+      <td>NaN</td>
+      <td>88.95149</td>
+    </tr>
+    <tr>
+      <th>2010-03-01</th>
+      <td>0.52</td>
+      <td>NaN</td>
+      <td>105.07767</td>
+    </tr>
+    <tr>
+      <th>2010-04-01</th>
+      <td>0.57</td>
+      <td>NaN</td>
+      <td>99.30561</td>
+    </tr>
+    <tr>
+      <th>2010-05-01</th>
+      <td>0.43</td>
+      <td>NaN</td>
+      <td>104.27978</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+### Method `datas_ibge_link`
+
+Some codes in `codes_ibge` do not work, resulting in errors and no files being returned. To address this, `codes_ibge_link` was created, where you obtain the link to the file from the [IBGE](https://sidra.ibge.gov.br/home/pms/brasil). A example of how to get the link is shown [here](imagens/example_link.md).
+
+```python
+## Imported library
+from brazilian_data import EconomicData
+
+## define the start date
+DATA_INICIO = "2010-01-01"
+
+## define the dictionary of codes
+indicadores_ibge_link = {
+    "capital_fixo": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93406/d/v6561%201/l/v,p%2Bc11255,t",
+    "producao_industrial_manufatureira": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela8158.xlsx&terr=N&rank=-&query=t/8158/n1/all/v/11599/p/all/c543/129278/d/v11599%205/l/v,p%2Bc543,t",
+    "soja": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39443/l/v,p%2Bc48,t",
+    "milho_1": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39441/l/v,p%2Bc48,t",
+    "milho_2": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39442/l/v,p%2Bc48,t",
+}
+
+## define a new object
+economic_brazil = EconomicData(codes_ibge_link=indicadores_ibge_link, 
+                     start_date=DATA_INICIO)
+
+## download the data
+dados = economic_brazil.datas_ibge_link()
+```
+```python
+dados.head()
+```
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>capital_fixo</th>
+      <th>producao_industrial_manufatureira</th>
+      <th>soja</th>
+      <th>milho_1</th>
+      <th>milho_2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2010-01-01</th>
+      <td>12.9</td>
+      <td>89.55269</td>
+      <td>66137344.0</td>
+      <td>33424815.0</td>
+      <td>17996575.0</td>
+    </tr>
+    <tr>
+      <th>2010-02-01</th>
+      <td>12.9</td>
+      <td>91.15047</td>
+      <td>66941524.0</td>
+      <td>33735243.0</td>
+      <td>18620733.0</td>
+    </tr>
+    <tr>
+      <th>2010-03-01</th>
+      <td>29.0</td>
+      <td>114.92197</td>
+      <td>67350136.0</td>
+      <td>33486684.0</td>
+      <td>19095737.0</td>
+    </tr>
+    <tr>
+      <th>2010-04-01</th>
+      <td>29.0</td>
+      <td>104.58762</td>
+      <td>67913643.0</td>
+      <td>33830625.0</td>
+      <td>19457468.0</td>
+    </tr>
+    <tr>
+      <th>2010-05-01</th>
+      <td>29.0</td>
+      <td>110.27518</td>
+      <td>68131230.0</td>
+      <td>33577605.0</td>
+      <td>19569483.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+### Method `datas_ipeadata()`
+
+If you want to download data from IPEA, you can use the `datas_ipeadata()` method.
+
+```python	
+## Import the `EconomicData` class
+from brazilian_data import EconomicData
+
+## Define parameters that will be used in the `datas_brazil` method
+DATA_INICIO = "2010-01-01"
+
+codigos_ipeadata= {
+    "taja_juros_ltn": "ANBIMA12_TJTLN1212",
+    "imposto_renda": "SRF12_IR12",
+    "ibovespa": "ANBIMA12_IBVSP12",
+    "consumo_energia": "ELETRO12_CEET12",
+    "brent_fob": "EIA366_PBRENT366",
+}
+
+## define a new object
+economic_brazil = EconomicData(codes_ipeadata=codigos_ipeadata, 
+                                start_date=DATA_INICIO)
+
+## download the data
+dados = economic_brazil.datas_ipeadata()
+```
+```python
+dados.head()
+```
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>taja_juros_ltn</th>
+      <th>imposto_renda</th>
+      <th>ibovespa</th>
+      <th>consumo_energia</th>
+      <th>brent_fob</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2010-01-01</th>
+      <td>10.454116</td>
+      <td>22598.711556</td>
+      <td>-4.65</td>
+      <td>33360.0</td>
+      <td>76.600323</td>
+    </tr>
+    <tr>
+      <th>2010-02-01</th>
+      <td>10.525189</td>
+      <td>11801.791225</td>
+      <td>1.68</td>
+      <td>33730.0</td>
+      <td>73.642143</td>
+    </tr>
+    <tr>
+      <th>2010-03-01</th>
+      <td>10.822181</td>
+      <td>15204.637209</td>
+      <td>5.82</td>
+      <td>35117.0</td>
+      <td>78.636452</td>
+    </tr>
+    <tr>
+      <th>2010-04-01</th>
+      <td>11.119986</td>
+      <td>21267.690569</td>
+      <td>-4.04</td>
+      <td>35026.0</td>
+      <td>84.191667</td>
+    </tr>
+    <tr>
+      <th>2010-05-01</th>
+      <td>11.696400</td>
+      <td>14772.309694</td>
+      <td>-6.64</td>
+      <td>34297.0</td>
+      <td>77.267742</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+### Method `datas_fred()`
+
+If you want to download data from FRED, you can use the `datas_fred()` method. On the first use of `datas_fred()`	, a prompt will appear for setting up the FRED API key. To generate the key, follow the steps described [here](imagens/example_key_fred.md).
+
+![fred_key](imagens/colocar_senha.png)
+
+After that, you can run the code again and the data will be collected.
+
+```python
+## Import the `EconomicData` class
+from brazilian_data import EconomicData
+
+## Define parameters that will be used in the `datas_brazil` method
+DATA_INICIO = "2010-01-01"
+
+codigos_fred = {
+    "nasdaq100": "NASDAQ100",
+    "taxa_cambio_efetiva": "RBBRBIS",
+    "cboe_nasdaq": "VXNCLS",
+    "taxa_juros_interbancaria": "IRSTCI01BRM156N",
+    "atividade_economica_eua": "USPHCI",}
+
+## Initialize the `EconomicData` class
+economic_brazil = EconomicData(codes_fred=codigos_fred, start_date=DATA_INICIO)
+
+## Download the data
+dados = economic_brazil.datas_fred()
+```
+
+```python
+dados.head()
+```
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nasdaq100</th>
+      <th>taxa_cambio_efetiva</th>
+      <th>cboe_nasdaq</th>
+      <th>taxa_juros_interbancaria</th>
+      <th>atividade_economica_eua</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2010-01-01</th>
+      <td>NaN</td>
+      <td>160.61</td>
+      <td>NaN</td>
+      <td>8.75</td>
+      <td>97.29</td>
+    </tr>
+    <tr>
+      <th>2010-02-01</th>
+      <td>1760.72</td>
+      <td>157.74</td>
+      <td>24.33</td>
+      <td>8.75</td>
+      <td>97.37</td>
+    </tr>
+    <tr>
+      <th>2010-03-01</th>
+      <td>1846.40</td>
+      <td>162.82</td>
+      <td>19.59</td>
+      <td>8.75</td>
+      <td>97.50</td>
+    </tr>
+    <tr>
+      <th>2010-04-01</th>
+      <td>1959.56</td>
+      <td>166.02</td>
+      <td>18.76</td>
+      <td>8.80</td>
+      <td>97.73</td>
+    </tr>
+    <tr>
+      <th>2010-05-01</th>
+      <td>NaN</td>
+      <td>165.54</td>
+      <td>NaN</td>
+      <td>9.50</td>
+      <td>98.19</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 
 
 

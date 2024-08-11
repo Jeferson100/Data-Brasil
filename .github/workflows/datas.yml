@@ -27,7 +27,7 @@ jobs:
           run: |
             cd ./dados
             pwd
-            python rodando_coleta_dados.py
+            python coleta_dados.py
           env:
              FRED_API_KEY : ${{ secrets.FRED_API_KEY }}    
         - name: Configure Git
@@ -40,6 +40,6 @@ jobs:
             git commit -m "Update data: $(date +'%Y-%m-%d')"
             git push
           env:
-            GITHUB_TOKEN: ${{ secrets.ACTIONS_PREDICOES }}
+            GITHUB_TOKEN: ${{ secrets.ACTIONS_BRAZILIAN_DATA }}
       
           

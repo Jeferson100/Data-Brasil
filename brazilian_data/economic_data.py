@@ -5,12 +5,11 @@ from datetime import datetime
 import warnings
 import pickle
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 sys.path.append("..")
 from brazilian_data.economic_data_process import (
     tratando_dados_bcb,
-    tratando_dados_expectativas,
     tratando_dados_ibge_link,
     tratando_dados_ibge_codigos,
     tratatando_dados_ipeadata,
@@ -123,7 +122,7 @@ class EconomicData:
         self.codes_ipeadata = codes_ipeadata or codigos_ipeadata_padrao
         self.codes_fred = codes_fred or codigos_fred_padrao
         self.start_date = start_date or DATA_INICIO
-        
+
         """
         Initialize the EconomicData class with optional parameters.
 
@@ -156,7 +155,7 @@ class EconomicData:
         )
         return pd.DataFrame(index=data_index)
 
-    def datas_banco_central(self, save=None, diretory=None, data_format=None):
+    def datas_banco_central(self, save=None, directory=None, data_format=None):
         """
         Fetch data from Banco Central and handle exceptions.
 
@@ -181,12 +180,11 @@ class EconomicData:
                     f"Error collecting data for variable {nome}. Please check if the code {codigo} is active at https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries"
                 )
         if save:
-            self.save_datas(dados, diretory, data_format)
+            self.save_datas(dados, directory, data_format)
         else:
             return dados
 
-
-    def datas_ibge(self, save=False, diretory=None, data_format=None):
+    def datas_ibge(self, save=False, directory=None, data_format=None):
         """
         Fetch IBGE data and handle exceptions.
 
@@ -208,11 +206,11 @@ class EconomicData:
                     f"Error collecting data for variable {key}. Please check if the code {valor} is active at https://sidra.ibge.gov.br/home/pms/brasil."
                 )
         if save:
-            self.save_datas(dic_ibge, diretory, data_format)
+            self.save_datas(dic_ibge, directory, data_format)
         else:
             return dic_ibge
 
-    def datas_ibge_link(self, save=None, diretory=None, data_format=None):
+    def datas_ibge_link(self, save=None, directory=None, data_format=None):
         """
         Fetch data from IBGE links and handle exceptions.
 
@@ -250,11 +248,11 @@ class EconomicData:
                     f"Error collecting data for variable {key}. Please check if the link {link} is active at https://sidra.ibge.gov.br/home/pms/brasil."
                 )
         if save:
-            self.save_datas(dic_ibge_link, diretory, data_format)
+            self.save_datas(dic_ibge_link, directory, data_format)
         else:
             return dic_ibge_link
 
-    def datas_ipeadata(self, salve=None, diretory=None, data_format=None):
+    def datas_ipeadata(self, salve=None, directory=None, data_format=None):
         """
         Fetch IPEADATA data and handle exceptions.
 
@@ -296,11 +294,11 @@ class EconomicData:
                 "Error in join of variable caged old and new. Please check if the code at http://www.ipeadata.gov.br/Default.aspx"
             )
         if salve:
-            self.save_datas(dic_ipeadata, diretory, data_format)
+            self.save_datas(dic_ipeadata, directory, data_format)
         else:
             return dic_ipeadata
 
-    def datas_fred(self, save=None, diretory=None, data_format=None):
+    def datas_fred(self, save=None, directory=None, data_format=None):
         """
         Fetch data from FRED and handle exceptions.
 
@@ -312,15 +310,15 @@ class EconomicData:
         if data_format is None:
             data_format = "csv"
         dic_fred = self.data_index()
-        base_dir = "/workspaces/Data-Brasil"
-        dotenv_path = os.path.abspath(os.path.join(base_dir, ".env"))
+        
+        dotenv_path = find_dotenv()
         if os.path.exists(dotenv_path):
             load_dotenv(dotenv_path)
         api_key = os.getenv("FRED_API_KEY")
         if not api_key:
             set_fred_api_key()
             sys.exit(
-                "Chave de API do FRED salva com sucesso. Encerrando o script. Rode o script novamente para coletar os dados."
+                "FRED API key successfully saved. Exiting the script. Run the script again to collect the data."
             )
         fred = Fred(api_key=api_key)
         if fred:
@@ -337,7 +335,7 @@ class EconomicData:
             )
 
         if save:
-            self.save_datas(dic_fred, diretory, data_format)
+            self.save_datas(dic_fred, directory, data_format)
         else:
             return dic_fred
 
@@ -372,12 +370,12 @@ class EconomicData:
         """
         if fill_method is None:
             fill_method = "ffill"
-    
+
         if data_format is None:
             data_format = "csv"
 
         dados = self.data_index()
-        
+
         if datas_bcb:
             dados = dados.join(self.datas_banco_central())
         if datas_ibge_codigos:
@@ -418,7 +416,7 @@ class EconomicData:
                 pickle.dump(dados, f)
         else:
             raise ValueError("Format of file not supported.")
-        
+
     def help(self):
         """
         Print out information about the available methods and their usage.

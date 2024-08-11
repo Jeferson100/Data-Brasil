@@ -17,6 +17,7 @@ def test_datas_banco_central(econ_brazil):
     assert isinstance(dados.index, pd.DatetimeIndex)
     assert isinstance(dados, pd.DataFrame)
 
+
 def test_datas_ibge(econ_brazil):
     dados = econ_brazil.datas_ibge()
     assert isinstance(dados.index, pd.DatetimeIndex)
