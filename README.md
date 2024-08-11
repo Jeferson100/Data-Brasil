@@ -1,7 +1,7 @@
 <img src="imagens/logo_brazilian.webp" alt="imagens" width="1000" height="700" />
 
 [![Teste Actions](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml)
-[![Collect Data](https://github.com/Jeferson100/Data-Brasil/actions/workflows/dados.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/datas.yml)
+[![Coleta de Dados](https://github.com/Jeferson100/Data-Brasil/actions/workflows/datas.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/datas.yml)
 
 # Brazilian Data
 
