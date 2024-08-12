@@ -1,5 +1,6 @@
 # Fred api key
 
+
 Access the website do [FRED](https://fred.stlouisfed.org/).
 
 Create an account or log in to your account.

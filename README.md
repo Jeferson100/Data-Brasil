@@ -1,11 +1,26 @@
-<img src="imagens/logo_brazilian.webp" alt="imagens" width="1000" height="700" />
+<img src="https://raw.githubusercontent.com/Jeferson100/Data-Brasil/main/imagens/logo_brazilian.webp" alt="imagens" width="1000" height="700" />
 
 [![Teste Actions](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml)
 [![Coleta de Dados](https://github.com/Jeferson100/Data-Brasil/actions/workflows/datas.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/datas.yml)
+[![PyPI version](https://badge.fury.io/py/brazilian-data.svg)](https://badge.fury.io/py/brazilian-data)
+[![Python Versions](https://img.shields.io/pypi/pyversions/brazilian-data.svg)](https://pypi.org/project/brazilian-data/)
+[![GitHub issues](https://img.shields.io/github/issues/Jeferson100/Data-Brasil.svg)](https://github.com/Jeferson100/Data-Brasil/issues)
+
+
+
+
+
 
 # Brazilian Data
 
 This repository is part of the development of a Python package designed for collecting data from Brazilian sources. It retrieves data from institutions such as the `Banco Central do Brasil`, `IBGE`, `IPEA`, and `FRED`.
+To search for series from the sources, use the following websites.
+
+- [Banco Central](https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries)
+- [IBGE](https://sidra.ibge.gov.br/home/ipca/brasil)
+- [IPEA](http://www.ipeadata.gov.br/Default.aspx)
+- [FRED](https://fred.stlouisfed.org/)
+
 
 ## Table of Contents
 
@@ -21,7 +36,7 @@ This repository is part of the development of a Python package designed for coll
 
 To install the package, execute the following command:
 ```	
-pip install brazilian_data
+pip install brazilian-data
 ```
 ## How to import
 
@@ -815,7 +830,7 @@ dados.head()
 
 ### Method `datas_ibge_link`
 
-Some codes in `codes_ibge` do not work, resulting in errors and no files being returned. To address this, `codes_ibge_link` was created, where you obtain the link to the file from the [IBGE](https://sidra.ibge.gov.br/home/pms/brasil). A example of how to get the link is shown [here](imagens/example_link.md).
+Some codes in `codes_ibge` do not work, resulting in errors and no files being returned. To address this, `codes_ibge_link` was created, where you obtain the link to the file from the [IBGE](https://sidra.ibge.gov.br/home/pms/brasil). A example of how to get the link is shown [here](https://github.com/Jeferson100/Data-Brasil/blob/main/imagens/example_link.md).
 
 ```python
 ## Imported library
@@ -988,9 +1003,9 @@ dados.head()
 
 ### Method `datas_fred()`
 
-If you want to download data from FRED, you can use the `datas_fred()` method. On the first use of `datas_fred()`	, a prompt will appear for setting up the FRED API key. To generate the key, follow the steps described [here](imagens/example_key_fred.md).
+If you want to download data from FRED, you can use the `datas_fred()` method. On the first use of `datas_fred()`	, a prompt will appear for setting up the FRED API key. To generate the key, follow the steps described [here](https://github.com/Jeferson100/Data-Brasil/blob/main/imagens/example_key_fred.md).
 
-![fred_key](imagens/colocar_senha.png)
+![fred](https://github.com/Jeferson100/Data-Brasil/blob/main/imagens/colocar_senha.png)
 
 After that, you can run the code again and the data will be collected.
 
@@ -1077,12 +1092,10 @@ dados.head()
 
 
 
-
-
 ## Contributing
 
 All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome. 
 
 ## License
 
-[MIT License](LICENSE)
+[MIT License](https://github.com/Jeferson100/Data-Brasil/blob/main/LICENSE)

@@ -3,7 +3,7 @@ import sys
 sys.path.append("..")
 from dotenv import load_dotenv, set_key
 def set_fred_api_key():
-    api_key = input("Por favor, insira sua chave de API do FRED: ").strip()
+    api_key = input("Please enter your FRED API key: ").strip()
     
     current_dir = os.getcwd()
 

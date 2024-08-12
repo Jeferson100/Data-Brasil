@@ -15,6 +15,6 @@ pytrends==4.9.2
 python-dotenv==1.0.0
 quandl==3.7.0
 fredapi==0.5.1
-xlrd
+xlrd==2.0.1
 setuptools
 
