@@ -1,14 +1,11 @@
 <img src="https://raw.githubusercontent.com/Jeferson100/Data-Brasil/main/imagens/logo_brazilian.webp" alt="imagens" width="1000" height="700" />
 
-[![Teste Actions](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml)
-[![Coleta de Dados](https://github.com/Jeferson100/Data-Brasil/actions/workflows/datas.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/datas.yml)
+[![Test Actions](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml)
+[![Collect Data](https://github.com/Jeferson100/Data-Brasil/actions/workflows/datas.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/datas.yml)
 [![PyPI version](https://badge.fury.io/py/brazilian-data.svg)](https://badge.fury.io/py/brazilian-data)
-[![Python Versions](https://img.shields.io/pypi/pyversions/brazilian-data.svg)](https://pypi.org/project/brazilian-data/)
+[![](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml)
 [![GitHub issues](https://img.shields.io/github/issues/Jeferson100/Data-Brasil.svg)](https://github.com/Jeferson100/Data-Brasil/issues)
-
-
-
-
+[![Test Python 3.10](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml)
 
 
 # Brazilian Data

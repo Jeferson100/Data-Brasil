@@ -1,4 +1,4 @@
-name: Teste Actions
+name: Test Actions Python 3.10
 on:
   push:
   workflow_dispatch:
@@ -6,10 +6,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-  
-    strategy:
-      matrix:
-        python-version: ['3.10', '3.11']
 
     steps:
       - name: Copia os arquivos do repo
@@ -18,7 +14,7 @@ jobs:
       - name: Instalar o Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.10"
 
       - name: Instalar o biblioteca
         run: |
