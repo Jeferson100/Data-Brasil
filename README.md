@@ -1,11 +1,30 @@
 <img src="https://raw.githubusercontent.com/Jeferson100/Data-Brasil/main/imagens/logo_brazilian.webp" alt="imagens" width="1000" height="700" />
 
-[![Test Actions](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml)
+[![Test Actions Python 3.10](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test_python_3_10.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test_python_3_10.yml)
+[![Test Actions Python 3.11](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test_python_3_11.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test_python_3_11.yml)
 [![Collect Data](https://github.com/Jeferson100/Data-Brasil/actions/workflows/datas.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/datas.yml)
 [![PyPI version](https://badge.fury.io/py/brazilian-data.svg)](https://badge.fury.io/py/brazilian-data)
 [![](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml)
-[![GitHub issues](https://img.shields.io/github/issues/Jeferson100/Data-Brasil.svg)](https://github.com/Jeferson100/Data-Brasil/issues)
-[![Test Python 3.10](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test.yml)
+[![GitHub](https://img.shields.io/github/license/Jeferson100/Data-Brasil)](https://github.com/Jeferson100/Data-Brasil/blob/main/LICENSE)
+[![GitHub Logo](https://img.shields.io/github/last-commit/Jeferson100/Data-Brasil?style=)](https://github.com/Jeferson100/Data-Brasil)
+[![GitHub](https://img.shields.io/github/repo-size/Jeferson100/Data-Brasil?style=flat-square)](https://github.com/Jeferson100/Data-Brasil)
+![Downloads](https://img.shields.io/pypi/dm/brazilian-data)
+
+
+## Links do projeto
+
+[![GitHub Logo](https://img.shields.io/badge/GitHub-black?style=flat&logo=github)](https://github.com/Jeferson100/Data-Brasil)
+
+
+
+
+## GitHub Statistics
+
+[![GitHub](https://img.shields.io/github/stars/Jeferson100/Data-Brasil?style=social)](https://github.com/Jeferson100/Data-Brasil)
+[![Forks](https://img.shields.io/github/forks/Jeferson100/Data-Brasil)](https://github.com/Jeferson100/Data-Brasil/network)
+[![Issues](https://img.shields.io/github/issues/Jeferson100/Data-Brasil)](https://github.com/Jeferson100/Data-Brasil/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/Jeferson100/Data-Brasil)](https://github.com/Jeferson100/Data-Brasil)
+
 
 
 # Brazilian Data
