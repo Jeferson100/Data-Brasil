@@ -6,9 +6,13 @@ on:
 jobs:
     build:
       runs-on: ubuntu-latest
+      permissions:
+        contents: write
       steps:
         - name: Copia os arquivos do repo
           uses: actions/checkout@v4
+          with:
+            token: ${{ secrets.ACTIONS_BRAZILIAN_DATA }}
         - name: Instalar o Python
           uses: actions/setup-python@v3
           with:
@@ -36,6 +40,8 @@ jobs:
             git config --global user.name "Jeferson Sehnem"
         
         - name: Commit and push changes
+          env:
+              GITHUB_TOKEN: ${{ secrets.ACTIONS_BRAZILIAN_DATA }}
           run: |
               git add .
               if git diff-index --quiet HEAD; then
@@ -44,6 +50,5 @@ jobs:
               fi
               git commit -m "Coletando dre em: $(date +'%Y-%m-%d')"
               git push https://Jeferson100:${{ secrets.ACTIONS_BRAZILIAN_DATA }}@github.com/Jeferson100/Data-Brasil.git HEAD:main
-          env:
-              GITHUB_TOKEN: ${{ secrets.ACTIONS_BRAZILIAN_DATA }}
+          
           
