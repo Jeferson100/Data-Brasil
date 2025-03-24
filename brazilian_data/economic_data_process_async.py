@@ -1,16 +1,22 @@
-from brazilian_data.economic_data_collection import (
-    dados_bcb,
-    dados_ibge_link,
-    dados_ibge_codigos,
-    dados_expectativas_focus,
-    dados_ipeadata,
+import sys
+
+sys.path.append("..")
+from .economic_data_collection_async import (
+    dados_bcb_async,
+    dados_ibge_link_async,
+    dados_ibge_codigos_async,
+    dados_expectativas_focus_async,
+    dados_ipeadata_async,
+    coleta_google_trends_async,
 )
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from datetime import datetime, date
 import requests
 from io import BytesIO
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, List, Any
+import asyncio
+import time
 
 
 # Tratando dados IBGE/SIDRAPY
@@ -46,22 +52,25 @@ def converter_mes_para_data(mes: int) -> datetime:
 def trimestre_string_int(dados: pd.DataFrame) -> list:
     lista_trimestre = []
     for i in range(len(dados.index)):
-        if int(dados.index[i][0]) * 3 == 12:
-            lista_trimestre.append(
-                dados.index[i][-4:] + "-" + str(int(dados.index[i][0]) * 3)
-            )
+        trimestre_str = str(dados.index[i][0])
+        trimestre_int = int(trimestre_str)
+        if trimestre_int * 3 == 12:
+            lista_trimestre.append(dados.index[i][-4:] + "-" + str(trimestre_int * 3))
         else:
             lista_trimestre.append(
-                dados.index[i][-4:] + "-" + "0" + str(int(dados.index[i][0]) * 3)
+                dados.index[i][-4:] + "-" + "0" + str(trimestre_int * 3)
             )
     return lista_trimestre
 
 
 def transforma_para_mes_incial_trimestre(dados: pd.DataFrame) -> list:
     lista_mes = []
+    if not isinstance(dados.index, pd.DatetimeIndex):
+        raise TypeError("O índice do DataFrame deve ser um DatetimeIndex")
     for i in range(len(dados.index)):
-        trimestre = dados.index.month[i]  # type:ignore
-        ano = str(dados.index.year[i])  # type:ignore
+        data = dados.index[i]  # type:ignore
+        trimestre = data.month  # type:ignore
+        ano = str(data.year)  # type:ignore
         lista_mes.append(
             str(
                 np.where(
@@ -110,7 +119,7 @@ def transforme_data(data: pd.DataFrame) -> pd.DataFrame:
 
 
 ###Tratando dados IBGE
-def tratando_dados_ibge_codigos(
+async def tratando_dados_ibge_codigos_async(
     codigos: Optional[Dict[str, Any]] = None,
     period: str = "all",
     salvar: bool = False,
@@ -118,9 +127,11 @@ def tratando_dados_ibge_codigos(
     diretorio: Optional[str] = None,
 ) -> pd.DataFrame:
     if codigos is None:
-        ibge_codigos = dados_ibge_codigos(period="all")
+        ibge_codigos = await dados_ibge_codigos_async(period="all")
     else:
-        ibge_codigos = dados_ibge_codigos(**codigos, period=period)
+        if not isinstance(codigos, dict):
+            raise TypeError("codigos deve ser um dicionário com chaves do tipo string")
+        ibge_codigos = await dados_ibge_codigos_async(**codigos, period=period)
     # Verificar se o DataFrame não está vazio
     if ibge_codigos.empty:
         raise ValueError("O DataFrame está vazio. Verifique os códigos fornecidos.")
@@ -163,17 +174,17 @@ def tratando_dados_ibge_codigos(
     return ibge_codigos
 
 
-def tratando_dados_ibge_link(
+async def tratando_dados_ibge_link_async(
     coluna: Optional[str] = None,
-    link: str = "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
     salvar: bool = False,
     formato: str = "csv",
     diretorio: Optional[str] = None,
+    link: str = "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
 ) -> pd.DataFrame:
-    dado_ibge = dados_ibge_link(url=link)
-    ibge_link = dado_ibge.T
-    ibge_link = ibge_link[[1]]
-    ibge_link = ibge_link[3:]
+    dado_ibge = await dados_ibge_link_async(url=link)
+    ibge_link = pd.DataFrame(dado_ibge.T)
+    ibge_link = pd.DataFrame(ibge_link[[1]])
+    ibge_link = pd.DataFrame(ibge_link[3:])
     ibge_link.columns = [coluna]
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
 
@@ -204,7 +215,7 @@ selic = {
 }
 
 
-def tratando_dados_bcb(
+async def tratando_dados_bcb_async(
     codigo_bcb_tratado: Optional[Dict[str, int]] = None,
     data_inicio_tratada: str = "2000-01-01",
     salvar: bool = False,
@@ -217,7 +228,9 @@ def tratando_dados_bcb(
     if not isinstance(codigo_bcb_tratado, dict):
         print("Código BCB deve ser um dicionário. Usando valor padrão.")
         codigo_bcb_tratado = selic
-    inflacao_bcb = dados_bcb(codigo_bcb_tratado, data_inicio_tratada, **kwargs)
+    inflacao_bcb = await dados_bcb_async(
+        codigo_bcb_tratado, data_inicio_tratada, **kwargs
+    )
     if salvar:
         if diretorio is None:
             raise ValueError("Diretório não especificado para salvar o arquivo")
@@ -228,16 +241,15 @@ def tratando_dados_bcb(
     return inflacao_bcb
 
 
-def tratando_dados_expectativas(
+async def tratando_dados_expectativas_async(
     salvar: bool = False, formato: str = "csv", diretorio: Optional[str] = None
 ) -> pd.DataFrame:
-    ipca_expec = dados_expectativas_focus()
+    ipca_expec = await dados_expectativas_focus_async()
     dados_ipca = ipca_expec.copy()
     dados_ipca = dados_ipca[::-1]
-    dados_ipca["monthyear"] = pd.to_datetime(dados_ipca["Data"]).apply(
-        lambda x: x.strftime("%Y-%m")
-    )
-
+    dados_ipca["monthyear"] = pd.to_datetime(dados_ipca["Data"]).apply(  # type:ignore
+        lambda x: x.strftime("%Y-%m")  # type:ignore
+    )  # type:ignore
     dados_ipca = dados_ipca.groupby("monthyear")["Mediana"].mean().to_frame()
     # criar índice com o formato "YYYY-MM"
     dados_ipca.index = pd.to_datetime(dados_ipca.index, format="%Y-%m", errors="coerce")
@@ -252,15 +264,14 @@ def tratando_dados_expectativas(
             dados_ipca.to_csv(diretorio)
         elif formato == "json":
             dados_ipca.to_json(diretorio)
+    return pd.DataFrame(dados_ipca)
 
-    return dados_ipca
 
-
-def tratatando_dados_ipeadata(
+async def tratatando_dados_ipeadata_async(
     codigo_ipeadata: Dict[str, str], data: str = "2000-01-01"
 ) -> pd.DataFrame:
     ((nome_coluna, codigo),) = codigo_ipeadata.items()
-    dados_ipea = dados_ipeadata(codigo=codigo, data=data)
+    dados_ipea = await dados_ipeadata_async(codigo=codigo, data=data)
     coluna = dados_ipea.filter(like="VALUE").columns[0]
     dados_ipea = dados_ipea[[coluna]]
     if isinstance(dados_ipea.index, pd.DatetimeIndex):
@@ -282,9 +293,29 @@ def tratatando_dados_ipeadata(
     return dados_ipea
 
 
-def tratando_dados_ibge_link_producao_agricola(
+async def tratando_dados_google_trends_async(
+    kw_list: List[str],
+    frequencia_data: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+) -> pd.DataFrame:
+    if frequencia_data is None:
+        frequencia_data = "MS"
+    if start_date is None:
+        start_date = "2004-01-01"
+    if end_date is None:
+        end_date = str(date.today())
+    data = await coleta_google_trends_async(kw_list, start_date, end_date)
+    data = data.resample(frequencia_data).mean()
+    if "isPartial" in data.columns:
+        data.drop("isPartial", axis=1, inplace=True)
+    return data
+
+
+async def tratando_dados_ibge_link_producao_agricola_async(
     url: str, nome_coluna: str, header: int = 3
 ) -> pd.DataFrame:
+    dados = await asyncio.to_thread(pd.read_excel, url, header=header)
     dados = pd.read_excel(url, header=header)
     dados = dados.T
     dados = dados.iloc[1:]
@@ -298,23 +329,25 @@ def tratando_dados_ibge_link_producao_agricola(
     data = data[[nome_coluna]]
     data.index = pd.to_datetime(data.index)
     data[nome_coluna] = pd.to_numeric(data[nome_coluna], errors="coerce")
+    if not isinstance(data, pd.DataFrame):
+        data = pd.DataFrame(data)
     return data
 
 
-def tratando_dados_ibge_link_colum_brazil(
+async def tratando_dados_ibge_link_colum_brazil_async(
     coluna: Optional[str] = None,
     link: str = "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
     salvar: bool = False,
     formato: str = "csv",
     diretorio: Optional[str] = None,
 ) -> pd.DataFrame:
-    dado_ibge = dados_ibge_link(url=link)
+    dado_ibge = await dados_ibge_link_async(url=link)
     ibge_link = dado_ibge.T
     ibge_link.columns = ibge_link.iloc[0]
-    ibge_link = ibge_link[
-        ibge_link.columns[ibge_link.columns.str.contains("Brasil", na=False)]
-    ]
-    ibge_link = ibge_link[3:]
+    ibge_link = pd.DataFrame(
+        ibge_link[ibge_link.columns[ibge_link.columns.str.contains("Brasil", na=False)]]
+    )
+    ibge_link = pd.DataFrame(ibge_link[3:])
     ibge_link.columns = [coluna]
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
 
@@ -340,15 +373,15 @@ def tratando_dados_ibge_link_colum_brazil(
     return ibge_link
 
 
-def read_indice_abcr() -> pd.DataFrame | None:
+async def read_indice_abcr_async() -> pd.DataFrame | None:
     url = "https://melhoresrodovias.org.br/wp-content/uploads/2024/06/abcr_0624.xls"
 
     # Cabeçalhos para simular um navegador
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
 
-    response = requests.get(url, headers=headers, timeout=10)
+    response = await asyncio.to_thread(requests.get, url, headers=headers, timeout=10)
 
     if response.status_code == 200:
         # Usar BytesIO para ler os dados binários
@@ -366,13 +399,20 @@ def read_indice_abcr() -> pd.DataFrame | None:
         print(f"Erro ao acessar o recurso: {response.status_code} - {response.reason}")
 
 
-def sondagem_industria(sheet: str, variable: str) -> pd.DataFrame:
+async def sondagem_industria_async(sheet: str, variable: str) -> pd.DataFrame:
     ##pagina para fazer web scraping
     url = "https://static.portaldaindustria.com.br/media/filer_public/62/24/6224e62d-7f5d-419d-ab6f-edd21e05cdf5/sondagemindustrial_serie-recente_maio2024.xls"
 
-    response = requests.get(url, timeout=10)
-    open("si.xls", "wb").write(response.content)
-    df = pd.read_excel("si.xls", sheet_name=sheet, skiprows=7)
+    # Fazer o download do arquivo Excel de forma assíncrona
+    response = await asyncio.to_thread(requests.get, url, timeout=10)
+    if response.status_code != 200:
+        print(f"Erro ao acessar o recurso: {response.status_code} - {response.reason}")
+
+    # Ler o conteúdo do arquivo Excel em memória
+    data = BytesIO(response.content)
+
+    # Ler a planilha do Excel de forma assíncrona
+    df = await asyncio.to_thread(pd.read_excel, data, sheet_name=sheet, skiprows=7)
     df = df.iloc[0:1, 1:]
     df = pd.DataFrame(df.iloc[0, :])
     df.columns = [variable]
@@ -438,3 +478,58 @@ def sondagem_industria(sheet: str, variable: str) -> pd.DataFrame:
     df.drop(columns="data", inplace=True)
     df[variable] = df[variable].astype(float)
     return df
+
+
+if __name__ == "__main__":
+    start = time.time()
+    print("Tratando dados IBGE com códigos")
+    ibge_codigo = {
+        "codigo": 1737,
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "63",
+    }
+    loop = asyncio.get_event_loop()
+    dados_ibge = loop.run_until_complete(
+        tratando_dados_ibge_codigos_async(codigos=ibge_codigo)
+    )
+    print(dados_ibge)
+    print("Tratando dados IBGE com link")
+    loop = asyncio.get_event_loop()
+    dados_ibge = loop.run_until_complete(tratando_dados_ibge_link_async())
+    print(dados_ibge)
+    print("Tratando dados BCB")
+    selic = {
+        "selic": 4189,
+    }
+    loop = asyncio.get_event_loop()
+    dados_bcb = loop.run_until_complete(
+        tratando_dados_bcb_async(codigo_bcb_tratado=selic)
+    )
+    print(dados_bcb)
+
+    print("Tratando dados Expectativas")
+    loop = asyncio.get_event_loop()
+    dados_expectativas = loop.run_until_complete(tratando_dados_expectativas_async())
+    print(dados_expectativas)
+
+    print("Tratando dados Ipeadata")
+    ipea_codigo = {"taja_juros_ltn": "ANBIMA12_TJTLN1212"}
+    loop = asyncio.get_event_loop()
+    dados_ipeadata = loop.run_until_complete(
+        tratatando_dados_ipeadata_async(codigo_ipeadata=ipea_codigo)
+    )
+    print(dados_ipeadata)
+
+    print("Tratando dados ibge link coluna")
+
+    loop = asyncio.get_event_loop()
+    dados_producao_agricola = loop.run_until_complete(
+        tratando_dados_ibge_link_colum_brazil_async()
+    )
+    print(dados_producao_agricola)
+
+    print("*" * 100)
+    end = time.time()
+    print(f"Tempo de execução: {end - start} segundos")
+    loop.close()
