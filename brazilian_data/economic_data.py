@@ -8,8 +8,8 @@ import os
 from dotenv import load_dotenv, find_dotenv
 from typing import Optional, Dict
 
-sys.path.append("..")
-from brazilian_data.economic_data_process import (
+#sys.path.append("..")
+from .economic_data_process import (
     tratando_dados_bcb,
     tratando_dados_ibge_link,
     tratando_dados_ibge_codigos,
@@ -18,7 +18,7 @@ from brazilian_data.economic_data_process import (
     tratando_dados_ibge_link_colum_brazil,
 )
 from fredapi import Fred
-from brazilian_data.configuracao_apis.api_fred import set_fred_api_key
+from .configuracao_apis.api_fred import set_fred_api_key
 
 warnings.filterwarnings("ignore")
 

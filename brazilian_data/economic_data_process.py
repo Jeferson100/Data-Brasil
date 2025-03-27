@@ -1,4 +1,4 @@
-from brazilian_data.economic_data_collection import (
+from .economic_data_collection import (
     dados_bcb,
     dados_ibge_link,
     dados_ibge_codigos,
