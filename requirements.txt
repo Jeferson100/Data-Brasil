@@ -1,8 +1,8 @@
 pylint==3.3.5
 click==8.1.3
-pytest==7.1.3
+pytest==8.2.1
 black==22.8.0
-pytest-cov==4.0.0
+pytest-cov==4.1.0
 pandas == 2.2.2
 python-bcb==0.3.2
 sidrapy==0.1.4
@@ -12,7 +12,7 @@ jupyterlab==4.0.0
 requests==2.31.0
 ipeadatapy==0.1.9
 pytrends==4.9.2
-python-dotenv==1.0.0
+python-dotenv==1.0.1
 quandl==3.7.0
 fredapi==0.5.1
 xlrd==2.0.1
@@ -20,4 +20,8 @@ setuptools
 pyright==1.1.376
 mypy==1.15.0
 aiohttp
+nest-asyncio==1.6.0
+pandas-stubs==2.2.3.250308
+types-requests==2.32.0.20250306
+pytest-asyncio==0.26.0
 

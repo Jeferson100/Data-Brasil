@@ -3,10 +3,8 @@ from bcb import sgs
 import sidrapy
 from bcb import Expectativas
 import ipeadatapy as ip
-from pytrends.request import TrendReq
 import time
-from datetime import date
-from typing import List, Dict, Optional
+from typing import Dict, Optional, cast
 import asyncio
 
 # Dados BCB
@@ -65,7 +63,9 @@ async def dados_ibge_link_async(
     url: str = "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
 ) -> pd.DataFrame:
     # carregar a tabela em um DataFrame
-    dados_link = await asyncio.to_thread(pd.read_excel, url, header=cabecalho)
+    dados_link: pd.DataFrame = await asyncio.to_thread(
+        pd.read_excel, url, header=cabecalho
+    )
     return dados_link
 
 
@@ -79,8 +79,8 @@ async def dados_expectativas_focus_async(
     ep = em.get_endpoint(tipo_expectativa)
 
     # Dados do IPCA
-    def get_ipca_expec():
-        return (
+    def get_ipca_expec() -> pd.DataFrame:
+        resultado = (
             ep.query()  # type: ignore
             .filter(ep.Indicador == indicador)  # type: ignore
             .filter(ep.Data >= data_inicio)  # type: ignore
@@ -95,6 +95,7 @@ async def dados_expectativas_focus_async(
             )
             .collect()
         )
+        return cast(pd.DataFrame, resultado)
 
     ipca_expec = await asyncio.to_thread(get_ipca_expec)
 
@@ -118,62 +119,9 @@ async def dados_ipeadata_async(
     return dados_ipea
 
 
-async def coleta_google_trends_async(
-    kw_list: Optional[List[str]] = None,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
-) -> pd.DataFrame:
-    """
-    Coleta dados do Google Trends de forma assíncrona.
-
-    Args:
-        kw_list (Optional[List[str]]): Lista de palavras-chave para pesquisa.
-        start_date (Optional[str]): Data de início no formato "YYYY-MM-DD".
-        end_date (Optional[str]): Data de término no formato "YYYY-MM-DD".
-
-    Returns:
-        pd.DataFrame: DataFrame com os dados coletados.
-    """
-    if start_date is None:
-        start_date = "2004-01-01"
-    if end_date is None:
-        end_date = str(date.today())
-    if kw_list is None:
-        kw_list = ["seguro desemprego"]
-
-    # Dividindo a pesquisa em vários períodos de 5 anos
-    periods = pd.date_range(start=start_date, end=end_date, freq="5YE")
-    if periods[-1] < pd.to_datetime(end_date):
-        periods = pd.DatetimeIndex(list(periods) + [pd.to_datetime(end_date)])
-
-    # Criando uma instância do TrendReq
-
-    pytrends = TrendReq()
-
-    # Fazendo a pesquisa para cada período de 5 anos
-    data = pd.DataFrame()
-    for i in range(len(periods) - 1):
-        timeframe = (
-            f"{periods[i].strftime('%Y-%m-%d')} {periods[i+1].strftime('%Y-%m-%d')}"
-        )
-
-        # Executa a construção do payload e coleta de dados em um thread separado
-        await asyncio.to_thread(pytrends.build_payload, kw_list, timeframe=timeframe)
-        temp_data = await asyncio.to_thread(pytrends.interest_over_time)
-
-        # Concatena os dados coletados
-        data = pd.concat([data, temp_data])
-
-        # Aguarda alguns segundos para evitar sobrecarga no servidor do Google Trends
-        await asyncio.sleep(10)
-
-    print("O google trends tem como data de início o ano 2004.")
-    return data
-
-
 if __name__ == "__main__":
 
-    async def main():
+    async def main() -> None:
         start = time.time()
         # Obtém dados do Banco Central
         print("Obtendo dados do Banco Central...")
@@ -196,10 +144,6 @@ if __name__ == "__main__":
         print("Obtendo dados do Ipeadata via async...")
         dados_ipeadata_async_result = await dados_ipeadata_async()
         print(dados_ipeadata_async_result)
-
-        print("Obtendo dados do Google Trends...")
-        # dados_google_trends_result = await coleta_google_trends_async()
-        # print(dados_google_trends_result)
 
         end = time.time()
         print(f"Tempo de execução: {end - start} segundos")

@@ -46,13 +46,13 @@ def converter_mes_para_data(mes: int) -> datetime:
 def trimestre_string_int(dados: pd.DataFrame) -> list:
     lista_trimestre = []
     for i in range(len(dados.index)):
-        if int(dados.index[i][0]) * 3 == 12:
-            lista_trimestre.append(
-                dados.index[i][-4:] + "-" + str(int(dados.index[i][0]) * 3)
-            )
+        trimestre_str = str(dados.index[i][0])
+        trimestre_int = int(trimestre_str)
+        if trimestre_int * 3 == 12:
+            lista_trimestre.append(dados.index[i][-4:] + "-" + str(trimestre_int * 3))
         else:
             lista_trimestre.append(
-                dados.index[i][-4:] + "-" + "0" + str(int(dados.index[i][0]) * 3)
+                dados.index[i][-4:] + "-" + "0" + str(trimestre_int * 3)
             )
     return lista_trimestre
 
@@ -171,9 +171,9 @@ def tratando_dados_ibge_link(
     diretorio: Optional[str] = None,
 ) -> pd.DataFrame:
     dado_ibge = dados_ibge_link(url=link)
-    ibge_link = dado_ibge.T
-    ibge_link = ibge_link[[1]]
-    ibge_link = ibge_link[3:]
+    ibge_link = pd.DataFrame(dado_ibge.T)
+    ibge_link = pd.DataFrame(ibge_link[[1]])
+    ibge_link = pd.DataFrame(ibge_link[3:])
     ibge_link.columns = [coluna]
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
 
@@ -234,9 +234,9 @@ def tratando_dados_expectativas(
     ipca_expec = dados_expectativas_focus()
     dados_ipca = ipca_expec.copy()
     dados_ipca = dados_ipca[::-1]
-    dados_ipca["monthyear"] = pd.to_datetime(dados_ipca["Data"]).apply(
-        lambda x: x.strftime("%Y-%m")
-    )
+    dados_ipca["monthyear"] = pd.to_datetime(dados_ipca["Data"]).apply(  # type:ignore
+        lambda x: x.strftime("%Y-%m")  # type:ignore
+    )  # type:ignore
 
     dados_ipca = dados_ipca.groupby("monthyear")["Mediana"].mean().to_frame()
     # criar índice com o formato "YYYY-MM"
@@ -298,6 +298,8 @@ def tratando_dados_ibge_link_producao_agricola(
     data = data[[nome_coluna]]
     data.index = pd.to_datetime(data.index)
     data[nome_coluna] = pd.to_numeric(data[nome_coluna], errors="coerce")
+    if not isinstance(data, pd.DataFrame):
+        data = pd.DataFrame(data)
     return data
 
 
@@ -311,10 +313,10 @@ def tratando_dados_ibge_link_colum_brazil(
     dado_ibge = dados_ibge_link(url=link)
     ibge_link = dado_ibge.T
     ibge_link.columns = ibge_link.iloc[0]
-    ibge_link = ibge_link[
-        ibge_link.columns[ibge_link.columns.str.contains("Brasil", na=False)]
-    ]
-    ibge_link = ibge_link[3:]
+    ibge_link = pd.DataFrame(
+        ibge_link[ibge_link.columns[ibge_link.columns.str.contains("Brasil", na=False)]]
+    )
+    ibge_link = pd.DataFrame(ibge_link[3:])
     ibge_link.columns = [coluna]
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
 

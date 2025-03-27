@@ -7,14 +7,13 @@ from .economic_data_collection_async import (
     dados_ibge_codigos_async,
     dados_expectativas_focus_async,
     dados_ipeadata_async,
-    coleta_google_trends_async,
 )
 import pandas as pd
 import numpy as np
-from datetime import datetime, date
+from datetime import datetime
 import requests
 from io import BytesIO
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, Any
 import asyncio
 import time
 
@@ -119,13 +118,13 @@ def transforme_data(data: pd.DataFrame) -> pd.DataFrame:
 
 
 ###Tratando dados IBGE
-async def tratando_dados_ibge_codigos_async(
-    codigos: Optional[Dict[str, Any]] = None,
-    period: str = "all",
-    salvar: bool = False,
-    formato: str = "csv",
-    diretorio: Optional[str] = None,
-) -> pd.DataFrame:
+async def tratando_dados_ibge_codigos_async(  # type:ignore
+    codigos: Optional[Dict[str, Any]] = None,  # type:ignore
+    period: str = "all",  # type:ignore
+    salvar: bool = False,  # type:ignore
+    formato: str = "csv",  # type:ignore
+    diretorio: Optional[str] = None,  # type:ignore
+) -> pd.DataFrame:  # type:ignore
     if codigos is None:
         ibge_codigos = await dados_ibge_codigos_async(period="all")
     else:
@@ -135,7 +134,8 @@ async def tratando_dados_ibge_codigos_async(
     # Verificar se o DataFrame não está vazio
     if ibge_codigos.empty:
         raise ValueError("O DataFrame está vazio. Verifique os códigos fornecidos.")
-    ibge_codigos.columns = ibge_codigos.iloc[0, :]
+    nova_coluna = ibge_codigos.iloc[0, :].tolist()
+    ibge_codigos.columns = pd.Index(nova_coluna, dtype="string")
     ibge_codigos = ibge_codigos.iloc[1:, :]
     if ibge_codigos.columns.str.contains("Trimestre Móvel").any():
         ibge_codigos["data"] = ibge_codigos["Trimestre Móvel (Código)"].apply(
@@ -147,22 +147,22 @@ async def tratando_dados_ibge_codigos_async(
         )
     ibge_codigos.index = ibge_codigos["data"]  # type:ignore
     try:
-        ibge_codigos["Valor"] = ibge_codigos["Valor"][1:].astype(float)
+        ibge_codigos["Valor"] = ibge_codigos["Valor"][1:].astype(float)  # type:ignore
+
     except ValueError as exc:
-        ibge_codigos["Valor"] = pd.to_numeric(ibge_codigos["Valor"], errors="coerce")
+        ibge_codigos["Valor"] = pd.to_numeric(ibge_codigos["Valor"], errors="coerce")  # type:ignore
         primeiro_valido_index = ibge_codigos["Valor"].first_valid_index()
         if primeiro_valido_index is None:
             # pylint: disable=W0622
             raise ValueError(
-                f'Não há valores válidos para a variável {ibge_codigos["Variável"][0]}. Verifique se os códigos {codigos} estão ativos em https://sidra.ibge.gov.br/home/pms/brasil.'
+                f"Não há valores válidos. Verifique se os códigos {codigos} estão ativos em https://sidra.ibge.gov.br/home/pms/brasil."
             ) from exc
             # pylint: disable=W0622
         else:
-            ibge_codigos = ibge_codigos.loc[primeiro_valido_index:]
+            # ibge_codigos = ibge_codigos.loc[primeiro_valido_index:]
+            ibge_codigos = ibge_codigos[ibge_codigos.index >= primeiro_valido_index]
             ibge_codigos["Valor"] = ibge_codigos["Valor"][1:].astype(float)
-            print(
-                f'Valores validos apartir de {primeiro_valido_index} para a variável {ibge_codigos["Variável"][0]}'
-            )
+
     # ibge_codigos = ibge_codigos[ibge_codigos.index > primeiro_valido_index]
     if salvar:
         if diretorio is None:
@@ -174,7 +174,7 @@ async def tratando_dados_ibge_codigos_async(
     return ibge_codigos
 
 
-async def tratando_dados_ibge_link_async(
+async def tratando_dados_ibge_link_async(  # type:ignore
     coluna: Optional[str] = None,
     salvar: bool = False,
     formato: str = "csv",
@@ -185,7 +185,7 @@ async def tratando_dados_ibge_link_async(
     ibge_link = pd.DataFrame(dado_ibge.T)
     ibge_link = pd.DataFrame(ibge_link[[1]])
     ibge_link = pd.DataFrame(ibge_link[3:])
-    ibge_link.columns = [coluna]
+    ibge_link.columns = [coluna]  # type: ignore
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
 
     if ibge_link.index.str.contains("trimestre").any():
@@ -204,7 +204,6 @@ async def tratando_dados_ibge_link_async(
             ibge_link.to_csv(diretorio)
         elif formato == "json":
             ibge_link.to_json(diretorio)
-
     return ibge_link
 
 
@@ -221,7 +220,7 @@ async def tratando_dados_bcb_async(
     salvar: bool = False,
     diretorio: Optional[str] = None,
     formato: str = "csv",
-    **kwargs,
+    **kwargs: Any,
 ) -> pd.DataFrame:
     if codigo_bcb_tratado is None:
         codigo_bcb_tratado = selic
@@ -289,33 +288,14 @@ async def tratatando_dados_ipeadata_async(
         )
     if not isinstance(dados_ipea, pd.DataFrame):
         dados_ipea = pd.DataFrame(dados_ipea)
-    dados_ipea.columns = [nome_coluna]
+    dados_ipea.columns = [nome_coluna]  # type:ignore
     return dados_ipea
-
-
-async def tratando_dados_google_trends_async(
-    kw_list: List[str],
-    frequencia_data: Optional[str] = None,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
-) -> pd.DataFrame:
-    if frequencia_data is None:
-        frequencia_data = "MS"
-    if start_date is None:
-        start_date = "2004-01-01"
-    if end_date is None:
-        end_date = str(date.today())
-    data = await coleta_google_trends_async(kw_list, start_date, end_date)
-    data = data.resample(frequencia_data).mean()
-    if "isPartial" in data.columns:
-        data.drop("isPartial", axis=1, inplace=True)
-    return data
 
 
 async def tratando_dados_ibge_link_producao_agricola_async(
     url: str, nome_coluna: str, header: int = 3
 ) -> pd.DataFrame:
-    dados = await asyncio.to_thread(pd.read_excel, url, header=header)
+    dados: pd.DataFrame = await asyncio.to_thread(pd.read_excel, url, header=header)
     dados = pd.read_excel(url, header=header)
     dados = dados.T
     dados = dados.iloc[1:]
@@ -343,12 +323,13 @@ async def tratando_dados_ibge_link_colum_brazil_async(
 ) -> pd.DataFrame:
     dado_ibge = await dados_ibge_link_async(url=link)
     ibge_link = dado_ibge.T
-    ibge_link.columns = ibge_link.iloc[0]
+    # ibge_link.columns = ibge_link.iloc[0]
+    ibge_link.columns = pd.Index(ibge_link.iloc[0], dtype="string")
     ibge_link = pd.DataFrame(
         ibge_link[ibge_link.columns[ibge_link.columns.str.contains("Brasil", na=False)]]
     )
     ibge_link = pd.DataFrame(ibge_link[3:])
-    ibge_link.columns = [coluna]
+    ibge_link.columns = [coluna]  # type: ignore
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
 
     if ibge_link.index.str.contains("trimestre").any():
@@ -374,9 +355,10 @@ async def tratando_dados_ibge_link_colum_brazil_async(
 
 
 async def read_indice_abcr_async() -> pd.DataFrame | None:
-    url = "https://melhoresrodovias.org.br/wp-content/uploads/2024/06/abcr_0624.xls"
+    url: str = (
+        "https://melhoresrodovias.org.br/wp-content/uploads/2024/06/abcr_0624.xls"
+    )
 
-    # Cabeçalhos para simular um navegador
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
@@ -389,14 +371,19 @@ async def read_indice_abcr_async() -> pd.DataFrame | None:
         try:
             df = pd.read_excel(data, sheet_name="(C) Original", header=2)
             df = df.iloc[:, :4]
-            df.columns = ["data", "ibcr_leves", "ibcr_pesados", "ibcr_total"]
+            # df.columns = ["data", "ibcr_leves", "ibcr_pesados", "ibcr_total"]
+            df.columns = pd.Index(
+                ["data", "ibcr_leves", "ibcr_pesados", "ibcr_total"], dtype="string"
+            )
             df.index = df["data"]  # type:ignore
             df.drop("data", axis=1, inplace=True)
             return df
         except ValueError:
             print("Erro ao ler o arquivo Excel:")
+            return None
     else:
         print(f"Erro ao acessar o recurso: {response.status_code} - {response.reason}")
+        return None
 
 
 async def sondagem_industria_async(sheet: str, variable: str) -> pd.DataFrame:
@@ -415,7 +402,7 @@ async def sondagem_industria_async(sheet: str, variable: str) -> pd.DataFrame:
     df = await asyncio.to_thread(pd.read_excel, data, sheet_name=sheet, skiprows=7)
     df = df.iloc[0:1, 1:]
     df = pd.DataFrame(df.iloc[0, :])
-    df.columns = [variable]
+    df.columns = [variable]  # type: ignore
     lista = []
     for i in df.index:
         if isinstance(i, str):

@@ -16,20 +16,20 @@ lint:
 	pylint --disable=R,C brazilian_data/*.py tests/*.py
 
 ruff_lint:
-	ruff check brazilian_data/*.py
+	ruff check brazilian_data/*.py tests/*.py
 
 pyright:
-	pyright brazilian_data/*.py
+	pyright brazilian_data/*.py tests/*.py
 
 ruff_format:
-	ruff format brazilian_data/*.py
+	ruff format brazilian_data/*.py tests/*.py
 
 typemypy:
-	typemypy brazilian_data/*.py
+	mypy brazilian_data/ tests/
 
 test:
 	python -m pytest -vv --cov=tests/test_*.py
 
 refactor: format lint
 
-all: uv_install lint ruff_lint format ruff_format pyright typemypy test
+all: uv_install lint ruff_lint format ruff_format pyright test

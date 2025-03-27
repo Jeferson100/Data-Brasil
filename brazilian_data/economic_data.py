@@ -254,9 +254,8 @@ class EconomicData:
                     f"Error collecting data for variable {key}. Please check if the link {link} is active at https://sidra.ibge.gov.br/home/pms/brasil."
                 )
             try:
-                if (
-                    key not in dic_ibge_link.columns
-                    or dic_ibge_link[key].isnull().all()
+                if key not in dic_ibge_link.columns or bool(
+                    dic_ibge_link[key].isnull().all()
                 ):
                     dic_ibge_link[key] = tratando_dados_ibge_link_colum_brazil(
                         key, link
