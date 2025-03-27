@@ -1352,7 +1352,7 @@ data = economic_brazil.datas_brazil_async(
 
 ## Notes
 
-- Requires Python 3.7+
+- Requires Python 3.10+
 - Use `nest_asyncio` in Jupyter notebooks
 - Compatible with all sources from the sync version
 
