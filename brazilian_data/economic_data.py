@@ -6,6 +6,7 @@ import warnings
 import pickle
 import os
 from dotenv import load_dotenv, find_dotenv
+from typing import Optional, Dict
 
 sys.path.append("..")
 from brazilian_data.economic_data_process import (
@@ -109,13 +110,13 @@ codigos_fred_padrao = {
 class EconomicData:
     def __init__(
         self,
-        codes_banco_central=None,
-        codes_ibge=None,
-        codes_ibge_link=None,
-        codes_ipeadata=None,
-        codes_fred=None,
-        start_date=None,
-    ):
+        codes_banco_central: Optional[Dict[str, int]] = None,
+        codes_ibge: Optional[Dict[str, dict]] = None,
+        codes_ibge_link: Optional[Dict[str, str]] = None,
+        codes_ipeadata: Optional[Dict[str, str]] = None,
+        codes_fred: Optional[Dict[str, str]] = None,
+        start_date: Optional[str] = None,
+    ) -> None:
         self.codes_banco_central = codes_banco_central or variaveis_banco_central_padrao
         self.codes_ibge = codes_ibge or variaveis_ibge_padrao
         self.codes_ibge_link = codes_ibge_link or indicadores_ibge_link_padrao
@@ -134,7 +135,7 @@ class EconomicData:
         :param start_date: Start date for data fetching.
         """
 
-    def fetch_data_for_code(self, link, column):
+    def fetch_data_for_code(self, link: str, column: str) -> pd.DataFrame:
         """
         Fetch data from IBGE link for a specific column.
 
@@ -144,7 +145,7 @@ class EconomicData:
         """
         return tratando_dados_ibge_link(coluna=column, link=link)
 
-    def data_index(self):
+    def data_index(self) -> pd.DataFrame:
         """
         Generate a DataFrame with a date range starting from start_date.
 
@@ -155,7 +156,12 @@ class EconomicData:
         )
         return pd.DataFrame(index=data_index)
 
-    def datas_banco_central(self, save=None, directory=None, data_format=None):
+    def datas_banco_central(
+        self,
+        save: bool = False,
+        directory: Optional[str] = None,
+        data_format: Optional[str] = None,
+    ) -> pd.DataFrame:
         """
         Fetch data from Banco Central and handle exceptions.
 
@@ -181,10 +187,16 @@ class EconomicData:
                 )
         if save:
             self.save_datas(dados, directory, data_format)
+            return dados
         else:
             return dados
 
-    def datas_ibge(self, save=False, directory=None, data_format=None):
+    def datas_ibge(
+        self,
+        save: bool = False,
+        directory: Optional[str] = None,
+        data_format: Optional[str] = None,
+    ) -> pd.DataFrame:
         """
         Fetch IBGE data and handle exceptions.
 
@@ -207,10 +219,16 @@ class EconomicData:
                 )
         if save:
             self.save_datas(dic_ibge, directory, data_format)
+            return dic_ibge
         else:
             return dic_ibge
 
-    def datas_ibge_link(self, save=None, directory=None, data_format=None):
+    def datas_ibge_link(
+        self,
+        save: bool = False,
+        directory: Optional[str] = None,
+        data_format: Optional[str] = None,
+    ) -> pd.DataFrame:
         """
         Fetch data from IBGE links and handle exceptions.
 
@@ -236,9 +254,8 @@ class EconomicData:
                     f"Error collecting data for variable {key}. Please check if the link {link} is active at https://sidra.ibge.gov.br/home/pms/brasil."
                 )
             try:
-                if (
-                    key not in dic_ibge_link.columns
-                    or dic_ibge_link[key].isnull().all()
+                if key not in dic_ibge_link.columns or bool(
+                    dic_ibge_link[key].isnull().all()
                 ):
                     dic_ibge_link[key] = tratando_dados_ibge_link_colum_brazil(
                         key, link
@@ -249,10 +266,16 @@ class EconomicData:
                 )
         if save:
             self.save_datas(dic_ibge_link, directory, data_format)
+            return dic_ibge_link
         else:
             return dic_ibge_link
 
-    def datas_ipeadata(self, salve=None, directory=None, data_format=None):
+    def datas_ipeadata(
+        self,
+        salve: bool = False,
+        directory: Optional[str] = None,
+        data_format: Optional[str] = None,
+    ) -> pd.DataFrame:
         """
         Fetch IPEADATA data and handle exceptions.
 
@@ -295,10 +318,16 @@ class EconomicData:
             )
         if salve:
             self.save_datas(dic_ipeadata, directory, data_format)
+            return dic_ipeadata
         else:
             return dic_ipeadata
 
-    def datas_fred(self, save=None, directory=None, data_format=None):
+    def datas_fred(
+        self,
+        save: bool = False,
+        directory: Optional[str] = None,
+        data_format: Optional[str] = None,
+    ) -> pd.DataFrame:
         """
         Fetch data from FRED and handle exceptions.
 
@@ -310,7 +339,7 @@ class EconomicData:
         if data_format is None:
             data_format = "csv"
         dic_fred = self.data_index()
-        
+
         dotenv_path = find_dotenv()
         if os.path.exists(dotenv_path):
             load_dotenv(dotenv_path)
@@ -336,22 +365,23 @@ class EconomicData:
 
         if save:
             self.save_datas(dic_fred, directory, data_format)
+            return dic_fred
         else:
             return dic_fred
 
     def datas_brazil(
         self,
-        datas_bcb=True,
-        datas_ibge_codigos=True,
-        datas_ibge_link=True,
-        datas_ipeadata=True,
-        datas_fred=False,
-        missing_data=True,
-        fill_method=None,
-        save=None,
-        directory=None,
-        data_format=None,
-    ):
+        datas_bcb: bool = True,
+        datas_ibge_codigos: bool = True,
+        datas_ibge_link: bool = True,
+        datas_ipeadata: bool = True,
+        datas_fred: bool = False,
+        missing_data: bool = True,
+        fill_method: Optional[str] = None,
+        save: bool = False,
+        directory: Optional[str] = None,
+        data_format: Optional[str] = None,
+    ) -> pd.DataFrame:
         """
         Fetch all data based on specified options.
 
@@ -377,25 +407,41 @@ class EconomicData:
         dados = self.data_index()
 
         if datas_bcb:
-            dados = dados.join(self.datas_banco_central())
+            banco_central_df = self.datas_banco_central()
+            if banco_central_df is not None:
+                dados = dados.join(banco_central_df)
         if datas_ibge_codigos:
-            dados = dados.join(self.datas_ibge())
+            ibge_df = self.datas_ibge()
+            if ibge_df is not None:
+                dados = dados.join(ibge_df)
         if datas_ibge_link:
-            dados = dados.join(self.datas_ibge_link())
+            ibge_link_df = self.datas_ibge_link()
+            if ibge_link_df is not None:
+                dados = dados.join(ibge_link_df)
         if datas_ipeadata:
-            dados = dados.join(self.datas_ipeadata())
+            ipeadata_df = self.datas_ipeadata()
+            if ipeadata_df is not None:
+                dados = dados.join(ipeadata_df)
         if datas_fred:
-            dados = dados.join(self.datas_fred())
+            fred_df = self.datas_fred()
+            if fred_df is not None:
+                dados = dados.join(fred_df)
         if missing_data:
             if fill_method == "ffill":
                 dados = dados.ffill()
                 dados = dados.bfill()
         if save:
             self.save_datas(dados, directory, data_format)
+            return dados
         else:
             return dados
 
-    def save_datas(self, dados, diretory=None, data_format="csv"):
+    def save_datas(
+        self,
+        dados: pd.DataFrame,
+        diretory: Optional[str] = None,
+        data_format: Optional[str] = "csv",
+    ) -> None:
         """
         Save the data to the specified directory and format.
 
@@ -417,7 +463,7 @@ class EconomicData:
         else:
             raise ValueError("Format of file not supported.")
 
-    def help(self):
+    def help(self) -> None:
         """
         Print out information about the available methods and their usage.
         """

@@ -25,24 +25,24 @@ import pandas as pd
 
 
 # write tests for tratando_dados_expectativas
-def test_tratando_dados_expectativas():
+def test_tratando_dados_expectativas() -> None:
     dados = tratando_dados_expectativas()
     assert isinstance(dados.index, pd.DatetimeIndex)
 
 
 # write tests for tratando_dados_ibge_codigos
-def test_tratando_dados_ibge_codigos_time():
+def test_tratando_dados_ibge_codigos_time() -> None:
     dados = tratando_dados_ibge_codigos()
     assert isinstance(dados.index, pd.DatetimeIndex)
 
 
-def test_tratando_dados_ibge_codigos_columns():
+def test_tratando_dados_ibge_codigos_columns() -> None:
     dados = tratando_dados_ibge_codigos()
     assert "Valor" in dados.columns
 
 
 # write tests for tratando_dados_ibge_link
-def test_tratando_dados_ibge_link():
+def test_tratando_dados_ibge_link() -> None:
     dados = tratando_dados_ibge_link(
         coluna="pib",
         link="https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/90707/d/v6561%201/l/v,p%2Bc11255,t",
@@ -50,7 +50,7 @@ def test_tratando_dados_ibge_link():
     assert isinstance(dados.index, pd.DatetimeIndex)
 
 
-def test_tratando_dados_ibge_link_columns():
+def test_tratando_dados_ibge_link_columns() -> None:
     dados = tratando_dados_ibge_link(
         coluna="pib",
         link="https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/90707/d/v6561%201/l/v,p%2Bc11255,t",
@@ -58,7 +58,7 @@ def test_tratando_dados_ibge_link_columns():
     assert "pib" in dados.columns
 
 
-def test_tratando_dados_ibge_link_producao_agricola():
+def test_tratando_dados_ibge_link_producao_agricola() -> None:
     dados = tratando_dados_ibge_link_producao_agricola(
         url="https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39443/l/v,p%2Bc48,t",
         nome_coluna="soja",
@@ -68,7 +68,7 @@ def test_tratando_dados_ibge_link_producao_agricola():
     assert isinstance(dados, pd.DataFrame)
 
 
-def test_tratatando_dados_ipeadata():
+def test_tratatando_dados_ipeadata() -> None:
     codigo_ipea = {"taja_juros_ltn": "ANBIMA12_TJTLN1212"}
     dados = tratatando_dados_ipeadata(codigo_ipeadata=codigo_ipea, data="2000-01-01")
     assert isinstance(dados.index, pd.DatetimeIndex)

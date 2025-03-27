@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/Jeferson100/Data-Brasil/main/imagens/logo_brazilian.webp" alt="imagens" width="1000" height="700" />
+<img src="https://raw.githubusercontent.com/Jeferson100/Data-Brasil/main/imagens/logo_brazilian.png"  alt="imagens" width="1000" height="700" />
 
 [![Test Actions Python 3.10](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test_python_3_10.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test_python_3_10.yml)
 [![Test Actions Python 3.11](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test_python_3_11.yml/badge.svg)](https://github.com/Jeferson100/Data-Brasil/actions/workflows/test_python_3_11.yml)
@@ -60,10 +60,10 @@ pip install brazilian-data
 from brazilian_data import EconomicData
 ```
 
-# EconomicData Class Documentation
+# EconomicData Class Documentation (Version sync)
 
 ## Overview
-The `EconomicData` class is designed to facilitate the fetching, processing, and saving of economic data from various sources such as Banco Central, IBGE, IPEADATA, and FRED.
+The `EconomicData` class is designed to facilitate the fetching, processing, and saving of economic data from various sources such as Banco Central, IBGE, IPEADATA, and FRED.For examples, see [economic_data_examples.ipynb](https://github.com/Jeferson100/Data-Brasil/blob/main/examples/economic_data_examples.ipynb).
 
 ## Initialization
 ### `__init__(self, codes_banco_central=None, codes_ibge=None, codes_ibge_link=None, codes_ipeadata=None, codes_fred=None, start_date=None)`
@@ -1107,6 +1107,256 @@ dados.head()
 </div>
 
 
+# EconomicDataAsync Class Documentation
+
+## Overview
+The `EconomicDataAsync` class is an asynchronous version of `EconomicData`, designed for more efficient data collection using async operations. For examples, see [economic_data_async_examples.ipynb](https://github.com/Jeferson100/Data-Brasil/blob/main/examples/economic_data_async_examples.ipynb).
+
+## Initialization
+### `__init__(self, codes_banco_central=None, codes_ibge=None, codes_ibge_link=None, codes_ipeadata=None, codes_fred=None, start_date=None)`
+
+- **Parameters:**
+  - `codes_banco_central` (dict): Central Bank codes
+  - `codes_ibge` (dict): IBGE codes
+  - `codes_ibge_link` (dict): IBGE links
+  - `codes_ipeadata` (dict): IPEADATA codes
+  - `codes_fred` (dict): FRED codes
+  - `start_date` (str): Start date for collection
+
+## Main Methods
+
+### `async def datas_brazil_async(self, **kwargs)`
+Asynchronously collects all configured data.
+
+```python
+data_bcb = True
+data_ibge = True
+data_ibge_link = True
+data_ipeadata = True
+data_fred = False
+
+economic_brazil = EconomicDataAsync(codes_banco_central=variaveis_banco_central, 
+                                 codes_ibge=variaveis_ibge, 
+                                 codes_ipeadata=codigos_ipeadata, 
+                                 codes_ibge_link=indicadores_ibge_link,
+                                 start_date=DATA_INICIO)
+
+dados = economic_brazil.datas_brazil_async(datas_bcb= data_bcb,
+                                     datas_ibge_codigos=data_ibge, 
+                                     datas_ibge_link=data_ibge_link, 
+                                     datas_ipeadata=data_ipeadata,
+                                     missing_data=True)
+```
+
+### `async def datas_banco_central_async(self, save=False, directory=None, data_format="csv")`
+Asynchronously collects data from the Central Bank.
+
+```python
+DATA_INICIO = "2000-01-01"
+variaveis_banco_central= {
+    "selic": 4189,
+    "cambio": 3698,
+    "pib_mensal": 4380,
+    "igp_m": 189,
+    "igp_di": 190,
+    "m1": 27788,
+}
+
+economic_brazil = EconomicDataAsync(codes_banco_central=variaveis_banco_central, 
+                                start_date=DATA_INICIO)
+
+dados = economic_brazil.datas_banco_central_async()
+```
+
+### `async def datas_ibge_async(self, save=False, directory=None, data_format="csv")`
+Asynchronously collects data from IBGE.
+
+```python
+variaveis_ibge = {
+    "ipca": {
+        "codigo": 1737,
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "63",
+    },
+    "custo_m2": {
+        "codigo": 2296,
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "1198",
+    },
+    "pesquisa_industrial_mensal": {
+        "codigo": 8159,
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "11599",
+    },
+    "pmc_volume": {
+        "codigo": 8186,
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "11709",
+    },
+}
+
+economic_brazil = EconomicDataAsync(codes_ibge=variaveis_ibge, 
+                                start_date=DATA_INICIO)
+
+dados = economic_brazil.datas_ibge_async()
+```
+
+### `async def datas_ibge_link_async(self, save=False, directory=None, data_format="csv")`
+Asynchronously collects data from IBGE via links.
+
+```python
+DATA_INICIO = "2010-01-01"
+
+indicadores_ibge_link = {
+    "capital_fixo": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93406/d/v6561%201/l/v,p%2Bc11255,t",
+    "producao_industrial_manufatureira": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela8158.xlsx&terr=N&rank=-&query=t/8158/n1/all/v/11599/p/all/c543/129278/d/v11599%205/l/v,p%2Bc543,t",
+    "soja": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39443/l/v,p%2Bc48,t",
+    "milho_1": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39441/l/v,p%2Bc48,t",
+    "milho_2": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39442/l/v,p%2Bc48,t",
+    "pib": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6564/p/all/c11255/90707/d/v6564%201/l/v,p,t%2Bc11255&verUFs=false&verComplementos2=false&verComplementos1=false&omitirIndentacao=false&abreviarRotulos=false&exibirNotas=false&agruparNoCabecalho=false",
+}
+
+economic_brazil = EconomicDataAsync(codes_ibge_link=indicadores_ibge_link, 
+                     start_date=DATA_INICIO)
+
+dados = economic_brazil.datas_ibge_link_async()
+```
+
+### `async def datas_ipeadata_async(self, save=False, directory=None, data_format="csv")`
+Asynchronously collects data from IPEADATA.
+
+```python
+DATA_INICIO = "2010-01-01"
+
+codigos_ipeadata= {
+    "taja_juros_ltn": "ANBIMA12_TJTLN1212",
+    "imposto_renda": "SRF12_IR12",
+    "ibovespa": "ANBIMA12_IBVSP12",
+    "consumo_energia": "ELETRO12_CEET12",
+    "brent_fob": "EIA366_PBRENT366",
+}
+
+
+economic_brazil = EconomicDataAsync(codes_ipeadata=codigos_ipeadata, 
+                                start_date=DATA_INICIO)
+
+dados = economic_brazil.datas_ipeadata_async()
+```
+
+### `async def datas_fred_async(self, save=False, directory=None, data_format="csv")`
+Asynchronously collects data from FRED.
+
+```python
+DATA_INICIO = "2010-01-01"
+codigos_fred = {
+    "nasdaq100": "NASDAQ100",
+    "taxa_cambio_efetiva": "RBBRBIS",
+    "cboe_nasdaq": "VXNCLS",
+    "taxa_juros_interbancaria": "IRSTCI01BRM156N",
+    "atividade_economica_eua": "USPHCI",}
+
+economic_brazil = EconomicDataAsync(codes_fred=codigos_fred, start_date=DATA_INICIO)
+
+dados = economic_brazil.datas_fred_async()
+```
+
+
+
+## Usage Example with Jupyter Notebook
+
+```python
+import nest_asyncio
+nest_asyncio.apply()
+
+from brazilian_data import EconomicDataAsync
+
+data_bcb = True
+data_ibge = True
+data_ibge_link = True
+data_ipeadata = True
+data_fred = False
+economic_brazil = EconomicDataAsync(codes_banco_central=variaveis_banco_central, 
+                                 codes_ibge=variaveis_ibge, 
+                                 codes_ipeadata=codigos_ipeadata, 
+                                 codes_ibge_link=indicadores_ibge_link,
+                                 start_date=DATA_INICIO)
+
+dados = economic_brazil.datas_brazil_async(datas_bcb= data_bcb,
+                                     datas_ibge_codigos=data_ibge, 
+                                     datas_ibge_link=data_ibge_link, 
+                                     datas_ipeadata=data_ipeadata,
+                                     missing_data=True)
+
+
+```
+
+## Performance Comparison
+
+Using the `%%timeit` magic command in Jupyter Notebook, we compared the execution time between synchronous and asynchronous methods. The results demonstrate significant performance improvements:
+
+### Synchronous Version
+
+```python
+%%timeit
+economic_brazil = EconomicData(
+    codes_banco_central=central_bank_variables, 
+    codes_ibge=ibge_variables, 
+    codes_ipeadata=ipeadata_codes, 
+    codes_ibge_link=ibge_link_indicators,
+    start_date=START_DATE
+)
+
+data = economic_brazil.datas_brazil(
+    datas_bcb=True,
+    datas_ibge_codigos=True, 
+    datas_ibge_link=True, 
+    datas_ipeadata=True,
+    missing_data=True
+)
+```
+```bash
+1min 18s ± 27.4s per loop (mean ± std. dev. of 7 runs, 1 loop each)
+```
+
+### Asynchronous Version
+```python
+%%timeit
+economic_brazil = EconomicDataAsync(
+    codes_banco_central=central_bank_variables, 
+    codes_ibge=ibge_variables, 
+    codes_ipeadata=ipeadata_codes, 
+    codes_ibge_link=ibge_link_indicators,
+    start_date=START_DATE
+)
+
+data = economic_brazil.datas_brazil_async(
+    datas_bcb=True,
+    datas_ibge_codigos=True, 
+    datas_ibge_link=True, 
+    datas_ipeadata=True,
+    missing_data=True
+)
+```
+
+```bash
+12.6s ± 2.5s per loop (mean ± std. dev. of 7 runs, 1 loop each)
+```
+
+### Performance Improvement
+- The asynchronous version is approximately **84% faster**
+- Average time reduction: 65.4 seconds
+- More consistent performance (lower standard deviation)
+- Better resource utilization through concurrent operations
+
+## Notes
+
+- Requires Python 3.7+
+- Use `nest_asyncio` in Jupyter notebooks
+- Compatible with all sources from the sync version
 
 ## Contributing
 
